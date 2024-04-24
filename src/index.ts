@@ -10,9 +10,20 @@ const walletClient = createWalletClient({
 
 async function checkEachEligibility() {
   for (const pk of privateKeys) {
-    const account = privateKeyToAccount(pk as `0x${string}`);
+    const formattedPrivateKey = pk.startsWith('0x') ? pk : `0x${pk}`;
+    const account = privateKeyToAccount(formattedPrivateKey);
     const timestamp = Math.floor(Date.now() / 1000);
-    const messageToSign = `Greetings from Avail!
+    const messageToSign = `Greetings from Avail! ...`;
+
+    const signature = await walletClient.signMessage({
+      account,
+      message: messageToSign,
+    });
+
+    await checkEligibility(account.address, timestamp, signature);
+  }
+}
+
 
 Sign this message to check your eligibility. This signature will not cost you any fees.
 
